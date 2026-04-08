@@ -76,11 +76,12 @@ app.post("/api/scrape-brand", async (req, res) => {
 
   let browser;
   try {
-    const puppeteer = require("puppeteer");
+    const puppeteer = require("puppeteer-core");
     console.log(`\n[AdSwipe] Launching browser to scrape: "${searchTerm}"...`);
 
     browser = await puppeteer.launch({
       headless: "new",
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome-stable",
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
     });
 
@@ -217,8 +218,9 @@ app.post("/api/transcribe", async (req, res) => {
     let transcript = "";
 
     if (snapshotUrl) {
-      const puppeteer = require("puppeteer");
-      const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox"] });
+      const puppeteer = require("puppeteer-core");
+      const browser = await puppeteer.launch({ headless: "new",
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome-stable", args: ["--no-sandbox"] });
       const page = await browser.newPage();
       await page.goto(snapshotUrl, { waitUntil: "networkidle2", timeout: 30000 });
       await sleep(2000);
