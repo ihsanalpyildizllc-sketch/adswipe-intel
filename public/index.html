@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdSwipe Intel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0C;--bg2:#111114;--bg3:#18181D;--bg4:#1F1F26;
+  --border:#252528;--border2:#32323A;
+  --text:#EEEEF5;--text2:#9898A8;--text3:#52525E;
+  --red:#E03131;--red2:#FF5555;--red-bg:rgba(224,49,49,0.12);
+  --green:#22C55E;--amber:#F59E0B;
+  --radius:8px;--radius-lg:12px;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+
+/* ── Layout ── */
+.app{display:flex;height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── Sidebar ── */
+.sidebar-top{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-mark{width:26px;height:26px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:#fff;letter-spacing:-.3px;flex-shrink:0}
+.logo-name{font-size:13px;font-weight:600;letter-spacing:-.3px}
+.logo-tag{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px}
+
+.nav{padding:8px 0}
+.nav-label{padding:10px 16px 4px;font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;cursor:pointer;transition:.12s;font-size:12px;color:var(--text2);border-left:2px solid transparent;user-select:none}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg3);color:var(--text);border-left-color:var(--red)}
+.nav-icon{font-size:13px;width:16px;text-align:center}
+
+.brands-section{flex:1;overflow-y:auto;padding:8px 0}
+.brands-label{padding:10px 16px 4px;font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:space-between}
+.brand-item{display:flex;align-items:center;justify-content:space-between;padding:6px 16px;cursor:pointer;transition:.12s;border-left:2px solid transparent}
+.brand-item:hover{background:var(--bg3)}
+.brand-item.active{background:var(--bg3);border-left-color:var(--red)}
+.brand-name{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.brand-cnt{font-size:9px;font-family:'DM Mono',monospace;background:var(--red-bg);color:var(--red2);padding:2px 6px;border-radius:99px;flex-shrink:0}
+
+.btn-add{margin:8px 12px;display:flex;align-items:center;gap:6px;padding:7px 10px;border:1px dashed var(--border2);border-radius:var(--radius);cursor:pointer;color:var(--text3);font-size:11px;background:transparent;transition:.12s;width:calc(100% - 24px);font-family:'DM Sans',sans-serif}
+.btn-add:hover{border-color:var(--red);color:var(--red)}
+
+.sidebar-foot{padding:12px 16px;border-top:1px solid var(--border)}
+.api-row{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--text3)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.dot.green{background:var(--green);box-shadow:0 0 5px var(--green)}
+.dot.amber{background:var(--amber);box-shadow:0 0 5px var(--amber)}
+
+/* ── Topbar ── */
+.topbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--bg2);flex-shrink:0}
+.topbar-title{font-size:14px;font-weight:600;letter-spacing:-.3px;flex:1}
+.badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:99px;background:var(--red-bg);color:var(--red2)}
+.btn{font-size:11px;font-weight:500;padding:6px 13px;border-radius:var(--radius);cursor:pointer;transition:.12s;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;white-space:nowrap}
+.btn:hover{border-color:var(--border);color:var(--text)}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff}
+.btn-red:hover{background:var(--red2);border-color:var(--red2)}
+.btn-red:disabled{background:var(--bg4);border-color:var(--border);color:var(--text3);cursor:not-allowed}
+
+/* ── Filters ── */
+.filterbar{padding:8px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.pill{font-size:10px;padding:4px 11px;border-radius:99px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:.12s;background:transparent;font-family:'DM Mono',monospace;white-space:nowrap}
+.pill:hover{border-color:var(--border2);color:var(--text)}
+.pill.on{background:var(--red);border-color:var(--red);color:#fff}
+.spacer{flex:1}
+.search{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:5px 11px;font-size:11px;color:var(--text);font-family:'DM Sans',sans-serif;width:180px;transition:.12s}
+.search:focus{outline:none;border-color:var(--border2)}
+.search::placeholder{color:var(--text3)}
+
+/* ── Progress ── */
+.progress{padding:7px 20px;border-bottom:1px solid var(--border);display:none;flex-shrink:0}
+.progress.show{display:block}
+.pbar{height:2px;background:var(--bg3);border-radius:1px;overflow:hidden;margin-bottom:4px}
+.pfill{height:100%;background:var(--red);border-radius:1px;transition:width .4s}
+.pmeta{display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3)}
+
+/* ── Content ── */
+.content{flex:1;overflow-y:auto;padding:16px 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+
+/* ── Ad card ── */
+.ad-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:.18s}
+.ad-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.thumb{height:130px;background:var(--bg3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.no-thumb{text-align:center;color:var(--text3)}
+.no-thumb svg{opacity:.25;margin-bottom:5px;display:block;margin-left:auto;margin-right:auto}
+.no-thumb span{font-size:9px;font-family:'DM Mono',monospace}
+.play-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25)}
+.play-btn{width:34px;height:34px;border-radius:50%;background:rgba(224,49,49,.9);display:flex;align-items:center;justify-content:center}
+.type-tag{position:absolute;top:7px;left:7px;font-size:8px;font-weight:600;letter-spacing:.4px;padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace}
+.tag-video{background:rgba(224,49,49,.85);color:#fff}
+.tag-image{background:rgba(59,130,246,.8);color:#fff}
+.tag-carousel{background:rgba(139,92,246,.8);color:#fff}
+.days-tag{position:absolute;top:7px;right:7px;font-size:8px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.65);color:#bbb;font-family:'DM Mono',monospace}
+.active-dot{position:absolute;bottom:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green)}
+
+.card-body{padding:10px 12px}
+.card-page{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-copy{font-size:11px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.angle-badge{font-size:9px;padding:2px 7px;border-radius:4px;background:var(--red-bg);color:var(--red2);font-family:'DM Mono',monospace}
+.btn-rw{font-size:9px;padding:3px 9px;border-radius:5px;background:var(--red);border:none;color:#fff;cursor:pointer;transition:.12s;font-weight:500}
+.btn-rw:hover{background:var(--red2)}
+
+/* ── Empty state ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--text3);text-align:center}
+.empty-icon{font-size:40px;margin-bottom:14px;opacity:.2}
+.empty-h{font-size:15px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.empty-p{font-size:12px;line-height:1.7;max-width:340px}
+
+/* ── Modals ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:440px;box-shadow:0 24px 80px rgba(0,0,0,.7)}
+.modal-h{font-size:18px;font-weight:600;letter-spacing:-.3px;margin-bottom:5px}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:22px;line-height:1.6}
+.form-label{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:5px;font-family:'DM Mono',monospace}
+.form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;transition:.12s;margin-bottom:14px}
+.form-input:focus{outline:none;border-color:var(--border2)}
+.hint{font-size:10px;color:var(--text3);margin-top:-10px;margin-bottom:14px;line-height:1.5}
+.hint a{color:var(--red2);text-decoration:none}
+.modal-actions{display:flex;gap:8px;margin-top:20px}
+.mbtn{flex:1;padding:10px;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;transition:.12s;border:1px solid var(--border);font-family:'DM Sans',sans-serif}
+.mbtn-p{background:var(--red);border-color:var(--red);color:#fff}
+.mbtn-p:hover{background:var(--red2)}
+.mbtn-c{background:transparent;color:var(--text2)}
+.mbtn-c:hover{color:var(--text);border-color:var(--border2)}
+
+/* ── Rewriter panel ── */
+.rp-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:none}
+.rp-overlay.show{display:block}
+.rp{position:fixed;right:0;top:0;bottom:0;width:560px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;z-index:51;transform:translateX(100%);transition:.25s ease}
+.rp.show{transform:translateX(0)}
+.rp-top{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.rp-title{font-size:14px;font-weight:600}
+.btn-x{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.12s}
+.btn-x:hover{border-color:var(--border2);color:var(--text)}
+.rp-preview{padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg3);font-size:11px;color:var(--text2);line-height:1.6;flex-shrink:0}
+.rp-preview strong{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);display:block;margin-bottom:3px}
+.rp-controls{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.rp-row{display:flex;gap:8px}
+.rp-sel{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px;font-size:11px;color:var(--text);font-family:'DM Sans',sans-serif}
+.rp-sel:focus{outline:none;border-color:var(--border2)}
+.rp-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.col-lbl{font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;font-family:'DM Mono',monospace}
+.rp-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:11px;line-height:1.7;color:var(--text2);min-height:80px;white-space:pre-wrap}
+.rp-box.out{color:var(--text);border-left:2px solid var(--red);background:var(--bg)}
+.spin-wrap{display:flex;align-items:center;gap:8px;color:var(--text3);font-size:11px}
+.spinner{width:12px;height:12px;border:1.5px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rp-foot{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 14px;font-size:12px;z-index:200;display:none;align-items:center;gap:7px;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:280px}
+.toast.show{display:flex}
+
+/* ── Script Library ── */
+#view-library{display:none}
+.lib-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px}
+.lib-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.lib-orig{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.lib-rw{font-size:11px;color:var(--text);line-height:1.5;white-space:pre-wrap}
+.lib-actions{display:flex;gap:6px;margin-top:10px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo">
+        <div class="logo-mark">AS</div>
+        <div>
+          <div class="logo-name">AdSwipe Intel</div>
+          <div class="logo-tag">Creative intelligence</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-label">Views</div>
+      <div class="nav-item active" onclick="showView('ads',this)" id="nav-ads"><span class="nav-icon">⊞</span> Ad Library</div>
+      <div class="nav-item" onclick="showView('library',this)" id="nav-library"><span class="nav-icon">◈</span> Script Library</div>
+    </div>
+    <div class="brands-section">
+      <div class="brands-label">
+        <span>Brands</span>
+      </div>
+      <div id="brand-list"></div>
+      <button class="btn-add" onclick="openAddBrand()">
+        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add brand
+      </button>
+    </div>
+    <div class="sidebar-foot">
+      <div class="api-row">
+        <div class="dot" id="dot-gemini"></div>
+        <span id="txt-gemini">Gemini — not set</span>
+      </div>
+      <div class="api-row" style="margin-top:5px">
+        <div class="dot" id="dot-claude"></div>
+        <span id="txt-claude">Claude — not set</span>
+      </div>
+      <button class="btn" style="width:100%;margin-top:10px;justify-content:center;display:flex" onclick="openSettings()">Settings</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">AdSwipe Intel</div>
+      <span class="badge" id="topbar-badge" style="display:none"></span>
+      <button class="btn" id="btn-export" style="display:none" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-red" id="btn-scrape" style="display:none" onclick="scrapeNow()">Scrape brand</button>
+    </div>
+    <div class="filterbar" id="filterbar" style="display:none">
+      <button class="pill on" onclick="setFilter('all',this)">All</button>
+      <button class="pill" onclick="setFilter('VIDEO',this)">Video</button>
+      <button class="pill" onclick="setFilter('IMAGE',this)">Image</button>
+      <button class="pill" onclick="setFilter('CAROUSEL',this)">Carousel</button>
+      <button class="pill" onclick="setFilter('active',this)">Active only</button>
+      <div class="spacer"></div>
+      <input class="search" placeholder="Search copy..." oninput="searchAds(this.value)" id="search-box">
+    </div>
+    <div class="progress" id="progress">
+      <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+      <div class="pmeta"><span id="plabel">Scraping...</span><span id="ppct">0%</span></div>
+    </div>
+    <div class="content" id="content">
+      <div class="empty">
+        <div class="empty-icon">◎</div>
+        <div class="empty-h">No brand selected</div>
+        <div class="empty-p">Add a brand from the sidebar, then click Scrape brand to pull all their ads — images, videos, and carousels.</div>
+      </div>
+    </div>
+
+    <!-- Script Library view -->
+    <div class="content" id="view-library" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Rewriter panel -->
+<div class="rp-overlay" id="rp-overlay" onclick="closeRW()"></div>
+<div class="rp" id="rp">
+  <div class="rp-top">
+    <div class="rp-title">Script Rewriter</div>
+    <button class="btn-x" onclick="closeRW()">✕</button>
+  </div>
+  <div class="rp-preview" id="rp-preview"></div>
+  <div class="rp-controls">
+    <div class="rp-row">
+      <select class="rp-sel" id="rp-prod">
+        <option value="exxtra-oregano">Exxtra Oil of Oregano</option>
+        <option value="exxtra-relief">Exxtra Miracle Relief Cream</option>
+      </select>
+    </div>
+    <div class="rp-row">
+      <select class="rp-sel" id="rp-angle">
+        <option value="antibiotic">Antibiotic Cycle Breaker</option>
+        <option value="parasite">Parasite Cleanse</option>
+        <option value="gut">Gut Health / SIBO</option>
+        <option value="immune">Immune Defense</option>
+        <option value="candida">Mold / Candida / Brain Fog</option>
+        <option value="skin">Skin From Inside</option>
+        <option value="allergy">Allergy Season</option>
+        <option value="pain">Nerve Pain / Neuropathy</option>
+        <option value="wound">Wounded Warrior</option>
+      </select>
+    </div>
+    <button class="btn btn-red" style="width:100%;justify-content:center;display:flex" onclick="generateRW()">Generate rewrite</button>
+  </div>
+  <div class="rp-body" id="rp-body">
+    <div>
+      <div class="col-lbl">Original ad copy</div>
+      <div class="rp-box" id="rp-orig">—</div>
+    </div>
+    <div>
+      <div class="col-lbl" id="rp-out-lbl">Rewritten for Exxtra</div>
+      <div class="rp-box out" id="rp-out" style="color:var(--text3);font-style:italic">Select product + angle, then click Generate.</div>
+    </div>
+  </div>
+  <div class="rp-foot">
+    <button class="btn" style="flex:1" onclick="copyRW()">Copy</button>
+    <button class="btn" style="flex:1" onclick="analyzeAd()">Analyze</button>
+    <button class="btn btn-red" style="flex:1" onclick="saveRW()">Save</button>
+  </div>
+</div>
+
+<!-- Add Brand modal -->
+<div class="overlay" id="modal-brand" style="display:none">
+  <div class="modal">
+    <div class="modal-h">Add brand to track</div>
+    <div class="modal-sub">Enter the exact brand name as shown on Meta Ad Library. We'll scrape all their ads (images + videos) in one click.</div>
+    <label class="form-label">Brand / Page name</label>
+    <input class="form-input" id="in-brand" placeholder="e.g. Resilia Health" onkeydown="if(event.key==='Enter')addBrand()">
+    <div class="modal-actions">
+      <button class="mbtn mbtn-c" onclick="closeAddBrand()">Cancel</button>
+      <button class="mbtn mbtn-p" onclick="addBrand()">Add & Scrape</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="overlay" id="modal-settings" style="display:none">
+  <div class="modal">
+    <div class="modal-h">API Settings</div>
+    <div class="modal-sub">Keys are saved locally on your machine, never sent anywhere except the respective APIs.</div>
+    <label class="form-label">Gemini API Key</label>
+    <input type="password" class="form-input" id="in-gemini" placeholder="AIza...">
+    <div class="hint"><a href="https://aistudio.google.com/apikey" target="_blank">Get free key →</a> Used for transcription.</div>
+    <label class="form-label">Claude / Anthropic API Key</label>
+    <input type="password" class="form-input" id="in-claude" placeholder="sk-ant-...">
+    <div class="hint"><a href="https://console.anthropic.com/settings/keys" target="_blank">Get key →</a> Used for rewrites + analysis.</div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-c" onclick="closeSettings()">Cancel</button>
+      <button class="mbtn mbtn-p" onclick="saveSettings()">Save keys</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><div class="dot green"></div><span id="toast-msg"></span></div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────
+const S = {
+  brands: {},        // { name: { ads: [], ts: null } }
+  current: null,
+  filter: 'all',
+  search: '',
+  library: [],
+  geminiSet: false,
+  claudeSet: false,
+};
+let currentAd = null;
+
+// ── Boot ─────────────────────────────────────────────────────────
+(async () => {
+  loadLocal();
+  renderSidebar();
+  await checkApiStatus();
+})();
+
+function loadLocal() {
+  try {
+    const d = JSON.parse(localStorage.getItem('asi_v2') || '{}');
+    if (d.brands) S.brands = d.brands;
+    if (d.library) S.library = d.library;
+  } catch {}
+}
+function persist() {
+  localStorage.setItem('asi_v2', JSON.stringify({ brands: S.brands, library: S.library }));
+}
+
+async function checkApiStatus() {
+  try {
+    const r = await fetch('/api/config');
+    const d = await r.json();
+    S.geminiSet = d.geminiKeySet;
+    S.claudeSet = d.claudeKeySet;
+    setDot('dot-gemini', 'txt-gemini', d.geminiKeySet, 'Gemini');
+    setDot('dot-claude', 'txt-claude', d.claudeKeySet, 'Claude');
+  } catch {}
+}
+function setDot(dotId, txtId, on, label) {
+  const dot = document.getElementById(dotId);
+  const txt = document.getElementById(txtId);
+  if (on) { dot.className = 'dot green'; txt.textContent = label + ' — active'; }
+  else { dot.className = 'dot'; txt.textContent = label + ' — not set'; }
+}
+
+// ── Views ─────────────────────────────────────────────────────────
+function showView(v, el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  if (v === 'ads') {
+    document.getElementById('content').style.display = 'flex'; // show
+    document.getElementById('content').style.flexDirection = 'column';
+    document.getElementById('view-library').style.display = 'none';
+  } else {
+    document.getElementById('content').style.display = 'none';
+    renderLibrary();
+    document.getElementById('view-library').style.display = 'block';
+  }
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('brand-list');
+  const names = Object.keys(S.brands);
+  if (!names.length) {
+    list.innerHTML = '<div style="padding:6px 16px;font-size:11px;color:var(--text3)">No brands yet</div>';
+    return;
+  }
+  list.innerHTML = names.map(n => `
+    <div class="brand-item ${S.current===n?'active':''}" onclick="selectBrand('${n.replace(/'/g,"\\'")}')">
+      <span class="brand-name">${n}</span>
+      <span class="brand-cnt">${(S.brands[n].ads||[]).length}</span>
+    </div>`).join('');
+}
+
+function selectBrand(name) {
+  S.current = name;
+  renderSidebar();
+  renderTopbar();
+  renderGrid();
+}
+
+function renderTopbar() {
+  const b = S.current;
+  document.getElementById('topbar-title').textContent = b || 'AdSwipe Intel';
+  const ads = b ? (S.brands[b]?.ads || []) : [];
+  const badge = document.getElementById('topbar-badge');
+  badge.textContent = ads.length + ' ads';
+  badge.style.display = b ? 'inline-block' : 'none';
+  document.getElementById('btn-scrape').style.display = b ? 'inline-block' : 'none';
+  document.getElementById('btn-export').style.display = ads.length ? 'inline-block' : 'none';
+  document.getElementById('filterbar').style.display = b ? 'flex' : 'none';
+}
+
+// ── Add brand ─────────────────────────────────────────────────────
+function openAddBrand() { document.getElementById('modal-brand').style.display = 'flex'; setTimeout(()=>document.getElementById('in-brand').focus(),50); }
+function closeAddBrand() { document.getElementById('modal-brand').style.display = 'none'; }
+function addBrand() {
+  const name = document.getElementById('in-brand').value.trim();
+  if (!name) return;
+  closeAddBrand();
+  if (!S.brands[name]) S.brands[name] = { ads: [], ts: null };
+  S.current = name;
+  renderSidebar();
+  renderTopbar();
+  renderGrid();
+  document.getElementById('in-brand').value = '';
+  scrapeBrand(name);
+}
+
+// ── Scrape ────────────────────────────────────────────────────────
+function scrapeNow() { if (S.current) scrapeBrand(S.current); }
+
+async function scrapeBrand(name) {
+  const prog = document.getElementById('progress');
+  const pfill = document.getElementById('pfill');
+  const plabel = document.getElementById('plabel');
+  const ppct = document.getElementById('ppct');
+  const btn = document.getElementById('btn-scrape');
+
+  prog.classList.add('show');
+  pfill.style.width = '5%';
+  plabel.textContent = `Scraping "${name}"...`;
+  ppct.textContent = '5%';
+  btn.disabled = true;
+
+  // Fake progress while waiting
+  let fakeP = 5;
+  const fakeInt = setInterval(() => {
+    if (fakeP < 85) { fakeP += 3; pfill.style.width = fakeP + '%'; ppct.textContent = fakeP + '%'; }
+  }, 1200);
+
+  try {
+    const r = await fetch('/api/scrape-brand', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ searchTerm: name }),
+    });
+    const data = await r.json();
+    clearInterval(fakeInt);
+
+    if (data.error) { showToast('Error: ' + data.error, false); }
+    else {
+      S.brands[name].ads = data.ads || [];
+      S.brands[name].ts = Date.now();
+      persist();
+      pfill.style.width = '100%';
+      ppct.textContent = '100%';
+      plabel.textContent = `Done — ${data.ads.length} ads scraped`;
+      setTimeout(() => prog.classList.remove('show'), 1500);
+      renderSidebar();
+      renderTopbar();
+      renderGrid();
+      showToast(`${data.ads.length} ads scraped for "${name}"`);
+    }
+  } catch (e) {
+    clearInterval(fakeInt);
+    prog.classList.remove('show');
+    showToast('Server error: ' + e.message, false);
+  }
+  btn.disabled = false;
+}
+
+// ── Grid ──────────────────────────────────────────────────────────
+function getFilteredAds() {
+  const b = S.current;
+  if (!b) return [];
+  let ads = S.brands[b]?.ads || [];
+  if (S.filter === 'VIDEO') ads = ads.filter(a => a.type === 'VIDEO');
+  else if (S.filter === 'IMAGE') ads = ads.filter(a => a.type === 'IMAGE');
+  else if (S.filter === 'CAROUSEL') ads = ads.filter(a => a.type === 'CAROUSEL');
+  else if (S.filter === 'active') ads = ads.filter(a => a.isActive);
+  if (S.search) { const q = S.search.toLowerCase(); ads = ads.filter(a => (a.copy||'').toLowerCase().includes(q) || (a.pageName||'').toLowerCase().includes(q)); }
+  return ads;
+}
+
+function renderGrid() {
+  const el = document.getElementById('content');
+  const b = S.current;
+  if (!b) { el.innerHTML = `<div class="empty"><div class="empty-icon">◎</div><div class="empty-h">No brand selected</div><div class="empty-p">Add a brand to get started.</div></div>`; return; }
+  const ads = getFilteredAds();
+  if (!ads.length && !S.brands[b]?.ads?.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">⊙</div><div class="empty-h">No ads yet</div><div class="empty-p">Click <strong>Scrape brand</strong> to pull all ads for <em>${b}</em>.</div></div>`;
+    return;
+  }
+  if (!ads.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">∅</div><div class="empty-h">No ads match</div><div class="empty-p">Try a different filter.</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="grid">${ads.map((ad,i) => cardHTML(ad, i)).join('')}</div>`;
+}
+
+function cardHTML(ad, i) {
+  const days = ad.startDate ? Math.floor((Date.now() - new Date(ad.startDate).getTime()) / 86400000) : null;
+  const typeCls = ad.type === 'VIDEO' ? 'tag-video' : ad.type === 'CAROUSEL' ? 'tag-carousel' : 'tag-image';
+  let thumbInner = '';
+  if (ad.imageUrl) {
+    thumbInner = `<img src="${ad.imageUrl}" onerror="this.parentElement.innerHTML=noThumb('${ad.type||'AD'}')" loading="lazy">`;
+    if (ad.type === 'VIDEO') thumbInner += `<div class="play-wrap"><div class="play-btn"><svg width="9" height="11" viewBox="0 0 9 11" fill="none"><path d="M1 1l7 4.5L1 10V1z" fill="white"/></svg></div></div>`;
+  } else {
+    thumbInner = noThumb(ad.type || 'IMAGE');
+  }
+  const angle = detectAngle(ad.copy);
+  return `<div class="ad-card" onclick="openRW(${i})">
+    <div class="thumb">${thumbInner}<div class="type-tag ${typeCls}">${ad.type||'IMAGE'}</div>${days!==null?`<div class="days-tag">Active ${days}d</div>`:''} ${ad.isActive?'<div class="active-dot"></div>':''}</div>
+    <div class="card-body">
+      <div class="card-page">${esc(ad.pageName||'')}</div>
+      <div class="card-copy">${esc((ad.copy||'No copy').slice(0,160))}</div>
+      <div class="card-footer"><span class="angle-badge">${angle}</span><button class="btn-rw" onclick="event.stopPropagation();openRW(${i})">Rewrite</button></div>
+    </div>
+  </div>`;
+}
+
+function noThumb(type) {
+  return `<div class="no-thumb"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>${type}</span></div>`;
+}
+
+function detectAngle(c) {
+  if (!c) return 'General';
+  c = c.toLowerCase();
+  if (c.includes('antibiotic')) return 'Antibiotic';
+  if (c.includes('parasit')) return 'Parasite';
+  if (c.includes('gut')||c.includes('bloat')||c.includes('sibo')||c.includes('digest')) return 'Gut';
+  if (c.includes('candida')||c.includes('mold')||c.includes('brain fog')) return 'Candida';
+  if (c.includes('immune')||c.includes('infection')) return 'Immune';
+  if (c.includes('pain')||c.includes('nerve')||c.includes('neuropath')) return 'Pain';
+  if (c.includes('skin')||c.includes('acne')||c.includes('eczema')) return 'Skin';
+  if (c.includes('allerg')) return 'Allergy';
+  if (c.includes('carvacrol')||c.includes('oregano')) return 'Oregano';
+  return 'General';
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Filters ───────────────────────────────────────────────────────
+function setFilter(f, el) {
+  S.filter = f;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderGrid();
+}
+function searchAds(q) { S.search = q; renderGrid(); }
+
+// ── Rewriter ──────────────────────────────────────────────────────
+function openRW(i) {
+  const ads = getFilteredAds();
+  currentAd = ads[i];
+  if (!currentAd) return;
+  document.getElementById('rp-preview').innerHTML = `<strong>${currentAd.pageName||''} — ${currentAd.type||'AD'}</strong>${esc((currentAd.copy||'').slice(0,200))}${(currentAd.copy||'').length>200?'…':''}`;
+  document.getElementById('rp-orig').textContent = currentAd.copy || 'No copy available';
+  document.getElementById('rp-out').textContent = 'Select product + angle, then click Generate.';
+  document.getElementById('rp-out').style.fontStyle = 'italic';
+  document.getElementById('rp-overlay').classList.add('show');
+  document.getElementById('rp').classList.add('show');
+}
+function closeRW() {
+  document.getElementById('rp-overlay').classList.remove('show');
+  document.getElementById('rp').classList.remove('show');
+}
+
+async function generateRW() {
+  if (!currentAd) return;
+  const out = document.getElementById('rp-out');
+  out.innerHTML = `<div class="spin-wrap"><div class="spinner"></div> Rewriting...</div>`;
+  out.style.fontStyle = 'normal';
+  try {
+    const r = await fetch('/api/rewrite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ originalCopy: currentAd.copy, product: document.getElementById('rp-prod').value, angle: document.getElementById('rp-angle').value }),
+    });
+    const d = await r.json();
+    if (d.rewrite) { out.textContent = d.rewrite; out.style.fontStyle = 'normal'; }
+    else out.textContent = d.error || 'Failed.';
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+
+async function analyzeAd() {
+  if (!currentAd) return;
+  const out = document.getElementById('rp-out');
+  out.innerHTML = `<div class="spin-wrap"><div class="spinner"></div> Analyzing...</div>`;
+  document.getElementById('rp-out-lbl').textContent = 'Ad Analysis';
+  try {
+    const r = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ copy: currentAd.copy }),
+    });
+    const d = await r.json();
+    out.textContent = d.analysis || d.error || 'Failed.';
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+
+function copyRW() {
+  const t = document.getElementById('rp-out').textContent;
+  navigator.clipboard.writeText(t).then(() => showToast('Copied'));
+}
+
+function saveRW() {
+  const rw = document.getElementById('rp-out').textContent;
+  if (!rw || rw.includes('Select product') || rw.includes('Error')) return;
+  const entry = {
+    id: Date.now(),
+    brand: S.current,
+    original: currentAd?.copy || '',
+    rewritten: rw,
+    product: document.getElementById('rp-prod').value,
+    angle: document.getElementById('rp-angle').value,
+    savedAt: new Date().toISOString(),
+  };
+  S.library.unshift(entry);
+  persist();
+  showToast('Saved to Script Library');
+}
+
+// ── Script Library ────────────────────────────────────────────────
+function renderLibrary() {
+  const el = document.getElementById('view-library');
+  if (!S.library.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">◈</div><div class="empty-h">No scripts saved yet</div><div class="empty-p">Rewrite ads and click Save to build your swipe file.</div></div>`;
+    return;
+  }
+  el.innerHTML = S.library.map(e => `
+    <div class="lib-card">
+      <div class="lib-meta">
+        <span>${e.brand||'—'}</span>
+        <span>·</span>
+        <span>${e.product||''}</span>
+        <span>·</span>
+        <span>${e.angle||''}</span>
+        <span style="margin-left:auto">${new Date(e.savedAt).toLocaleDateString()}</span>
+      </div>
+      <div class="lib-orig">${esc((e.original||'').slice(0,120))}…</div>
+      <div class="lib-rw">${esc(e.rewritten||'')}</div>
+      <div class="lib-actions">
+        <button class="btn" onclick="navigator.clipboard.writeText(${JSON.stringify(e.rewritten).replace(/</g,'&lt;')}).then(()=>showToast('Copied'))">Copy</button>
+        <button class="btn" onclick="deleteLib(${e.id})">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function deleteLib(id) {
+  S.library = S.library.filter(e => e.id !== id);
+  persist();
+  renderLibrary();
+}
+
+// ── Export ────────────────────────────────────────────────────────
+function exportCSV() {
+  const ads = S.brands[S.current]?.ads || [];
+  const rows = [['ID','Page','Type','Copy','Start Date','Active','Snapshot']];
+  ads.forEach(a => rows.push([a.id, a.pageName, a.type, `"${(a.copy||'').replace(/"/g,'""')}"`, a.startDate||'', a.isActive?'Yes':'No', a.snapshotUrl||'']));
+  const blob = new Blob([rows.map(r=>r.join(',')).join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`${S.current}-ads.csv`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported');
+}
+
+// ── Settings ──────────────────────────────────────────────────────
+function openSettings() { document.getElementById('modal-settings').style.display = 'flex'; }
+function closeSettings() { document.getElementById('modal-settings').style.display = 'none'; }
+async function saveSettings() {
+  const g = document.getElementById('in-gemini').value.trim();
+  const c = document.getElementById('in-claude').value.trim();
+  try {
+    await fetch('/api/config', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ geminiApiKey: g, claudeApiKey: c }) });
+    closeSettings();
+    await checkApiStatus();
+    showToast('Keys saved');
+  } catch (e) { showToast('Save failed: ' + e.message, false); }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────
+let toastT;
+function showToast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => document.getElementById('toast').classList.remove('show'), 2500);
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeRW(); closeSettings(); closeAddBrand(); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "adswipe-intel",
+  "version": "2.0.0",
+  "description": "Ad Library scraper + script rewriter",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "puppeteer": "^21.0.0",
+    "node-fetch": "^2.7.0",
+    "axios": "^1.6.0"
+  }
+}
