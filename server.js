@@ -346,3 +346,14 @@ app.listen(3000, () => {
   console.log("║   Settings → add Gemini + Claude API keys    ║");
   console.log("╚══════════════════════════════════════════════╝\n");
 });
+
+// ── Vault update endpoint ─────────────────────────────────────────
+app.post("/api/vault/update", (req, res) => {
+  const vault = loadVault();
+  const idx = vault.findIndex(v => String(v.id) === String(req.body.id));
+  if (idx > -1) {
+    vault[idx] = { ...vault[idx], ...req.body };
+    saveVault(vault);
+  }
+  res.json({ success: true });
+});

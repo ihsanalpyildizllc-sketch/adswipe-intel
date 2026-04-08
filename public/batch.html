@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdSwipe Intel — Batch Library</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0C;--bg2:#111114;--bg3:#18181D;--bg4:#1F1F26;
+  --border:#252528;--border2:#32323A;
+  --text:#EEEEF5;--text2:#9898A8;--text3:#52525E;
+  --red:#E03131;--red2:#FF5555;--red-bg:rgba(224,49,49,0.12);
+  --green:#22C55E;--amber:#F59E0B;--blue:#3B82F6;
+  --radius:8px;--radius-lg:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* Nav */
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:20px;height:52px}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav-mark{width:24px;height:24px;background:var(--red);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;color:#fff}
+.nav-name{font-size:13px;font-weight:600;color:var(--text)}
+.nav-links{display:flex;gap:4px;margin-left:8px}
+.nav-link{font-size:12px;padding:5px 12px;border-radius:6px;color:var(--text2);text-decoration:none;transition:.12s}
+.nav-link:hover{background:var(--bg3);color:var(--text)}
+.nav-link.active{background:var(--bg3);color:var(--text)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-count{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3)}
+.btn{font-size:11px;font-weight:500;padding:6px 13px;border-radius:var(--radius);cursor:pointer;transition:.12s;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif}
+.btn:hover{color:var(--text);border-color:var(--border)}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff}
+.btn-red:hover{background:var(--red2);border-color:var(--red2)}
+
+/* Toolbar */
+.toolbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--bg)}
+.search{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;width:260px}
+.search:focus{outline:none;border-color:var(--border2)}
+.search::placeholder{color:var(--text3)}
+.pill{font-size:10px;padding:4px 12px;border-radius:99px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:.12s;background:transparent;font-family:'DM Mono',monospace}
+.pill:hover{border-color:var(--border2);color:var(--text)}
+.pill.on{background:var(--red);border-color:var(--red);color:#fff}
+.spacer{flex:1}
+.sort-sel{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:6px 10px;font-size:11px;color:var(--text2);font-family:'DM Sans',sans-serif}
+
+/* Grid */
+.page{padding:20px 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px}
+
+/* Card */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:.18s}
+.card:hover{border-color:var(--border2)}
+.card-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-brand{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3)}
+.card-badges{display:flex;gap:5px}
+.badge{font-size:9px;padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace;font-weight:500}
+.badge-video{background:var(--red-bg);color:var(--red2)}
+.badge-image{background:rgba(59,130,246,.12);color:#60A5FA}
+.badge-date{background:var(--bg3);color:var(--text3)}
+
+.card-body{padding:14px}
+.section-label{font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.copy-btn{font-size:9px;color:var(--text3);cursor:pointer;padding:1px 5px;border:1px solid var(--border);border-radius:3px;background:transparent;font-family:'DM Mono',monospace;transition:.12s}
+.copy-btn:hover{color:var(--text);border-color:var(--border2)}
+
+.text-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:11px;line-height:1.65;color:var(--text2);max-height:120px;overflow-y:auto;margin-bottom:10px;white-space:pre-wrap}
+.text-box.expanded{max-height:none}
+.text-box.rewrite{color:var(--text);border-left:2px solid var(--red);background:var(--bg)}
+.expand-btn{font-size:9px;color:var(--text3);cursor:pointer;margin-top:-6px;margin-bottom:10px;display:inline-block}
+.expand-btn:hover{color:var(--red2)}
+
+.card-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.link-btn{font-size:10px;color:var(--text3);text-decoration:none;display:flex;align-items:center;gap:4px;transition:.12s}
+.link-btn:hover{color:var(--red2)}
+.btn-sm{font-size:10px;padding:4px 10px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:.12s}
+.btn-sm:hover{color:var(--text);border-color:var(--border2)}
+.btn-sm-red{background:var(--red);border-color:var(--red);color:#fff}
+.btn-sm-red:hover{background:var(--red2)}
+
+/* Rewrite modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;display:none}
+.overlay.show{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.7)}
+.modal-h{font-size:17px;font-weight:600;margin-bottom:5px;letter-spacing:-.3px}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:20px}
+.form-label{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:5px;font-family:'DM Mono',monospace}
+.form-sel{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;margin-bottom:14px}
+.orig-preview{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:11px;color:var(--text2);line-height:1.6;max-height:100px;overflow-y:auto;margin-bottom:14px}
+.result-box{background:var(--bg);border:1px solid var(--border);border-left:2px solid var(--red);border-radius:var(--radius);padding:12px;font-size:12px;color:var(--text);line-height:1.7;min-height:100px;white-space:pre-wrap;margin-bottom:14px}
+.modal-actions{display:flex;gap:8px}
+.mbtn{flex:1;padding:10px;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;transition:.12s;border:1px solid var(--border);font-family:'DM Sans',sans-serif}
+.mbtn-p{background:var(--red);border-color:var(--red);color:#fff}
+.mbtn-p:hover{background:var(--red2)}
+.mbtn-c{background:transparent;color:var(--text2)}
+.mbtn-c:hover{color:var(--text);border-color:var(--border2)}
+.spinner{width:12px;height:12px;border:1.5px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--text3);text-align:center}
+.empty-icon{font-size:40px;margin-bottom:14px;opacity:.2}
+.empty-h{font-size:15px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.empty-p{font-size:12px;line-height:1.7;max-width:340px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--green);border-radius:var(--radius);padding:10px 14px;font-size:12px;z-index:200;display:none;align-items:center;gap:7px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast.show{display:flex}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a class="nav-logo" href="/">
+    <div class="nav-mark">AS</div>
+    <span class="nav-name">AdSwipe Intel</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="/">Ad Library</a>
+    <a class="nav-link active" href="/batch.html">Batch Library</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-count" id="total-count">0 scripts</span>
+    <button class="btn" onclick="exportAll()">Export CSV</button>
+    <button class="btn btn-red" onclick="openBatchRewrite()">Batch Rewrite</button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <input class="search" placeholder="Search transcripts, rewrites, brands..." oninput="filterCards(this.value)" id="search-box">
+  <button class="pill on" onclick="setFilter('all',this)">All</button>
+  <button class="pill" onclick="setFilter('video',this)">Video</button>
+  <button class="pill" onclick="setFilter('image',this)">Image</button>
+  <button class="pill" onclick="setFilter('rewritten',this)">Rewritten</button>
+  <button class="pill" onclick="setFilter('no-rewrite',this)">No rewrite</button>
+  <div class="spacer"></div>
+  <select class="sort-sel" onchange="sortCards(this.value)">
+    <option value="newest">Newest first</option>
+    <option value="oldest">Oldest first</option>
+    <option value="brand">By brand</option>
+  </select>
+</div>
+
+<div class="page">
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- Rewrite Modal -->
+<div class="overlay" id="rw-overlay">
+  <div class="modal">
+    <div class="modal-h">Rewrite Script</div>
+    <div class="modal-sub" id="rw-brand-label">—</div>
+    <div class="orig-preview" id="rw-orig"></div>
+    <label class="form-label">Product</label>
+    <select class="form-sel" id="rw-prod">
+      <option value="exxtra-oregano">Exxtra Oil of Oregano</option>
+      <option value="exxtra-relief">Exxtra Miracle Relief Cream</option>
+    </select>
+    <label class="form-label">Angle</label>
+    <select class="form-sel" id="rw-angle">
+      <option value="antibiotic">Antibiotic Cycle Breaker</option>
+      <option value="parasite">Parasite Cleanse</option>
+      <option value="gut">Gut Health / SIBO</option>
+      <option value="immune">Immune Defense</option>
+      <option value="candida">Mold / Candida / Brain Fog</option>
+      <option value="skin">Skin From Inside</option>
+      <option value="allergy">Allergy Season</option>
+      <option value="pain">Nerve Pain / Neuropathy</option>
+      <option value="wound">Wounded Warrior</option>
+    </select>
+    <label class="form-label">Result</label>
+    <div class="result-box" id="rw-result">Click Generate to create your adapted script.</div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-c" onclick="closeRW()">Close</button>
+      <button class="mbtn mbtn-c" onclick="copyResult()">Copy</button>
+      <button class="mbtn mbtn-p" onclick="generateRW()" id="rw-gen-btn">Generate</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="tdot"></div><span id="toast-msg"></span></div>
+
+<script>
+let allEntries = [];
+let filtered = [];
+let currentFilter = 'all';
+let currentSearch = '';
+let currentRWEntry = null;
+
+// ── Load data ─────────────────────────────────────────────────────
+async function load() {
+  try {
+    const r = await fetch('/api/vault');
+    allEntries = await r.json();
+  } catch {
+    allEntries = [];
+  }
+  applyFilters();
+}
+
+// ── Filter & sort ─────────────────────────────────────────────────
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  applyFilters();
+}
+
+function filterCards(q) {
+  currentSearch = q.toLowerCase();
+  applyFilters();
+}
+
+function sortCards(v) {
+  if (v === 'newest') filtered.sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt));
+  if (v === 'oldest') filtered.sort((a,b) => new Date(a.savedAt) - new Date(b.savedAt));
+  if (v === 'brand') filtered.sort((a,b) => (a.advertiserName||'').localeCompare(b.advertiserName||''));
+  renderGrid();
+}
+
+function applyFilters() {
+  filtered = allEntries.filter(e => {
+    if (currentFilter === 'video' && e.adFormat !== 'video') return false;
+    if (currentFilter === 'image' && e.adFormat === 'video') return false;
+    if (currentFilter === 'rewritten' && (!e.rewrite || e.rewrite === 'Error')) return false;
+    if (currentFilter === 'no-rewrite' && e.rewrite && e.rewrite !== 'Error') return false;
+    if (currentSearch) {
+      const haystack = [e.advertiserName, e.adCopy, e.transcript, e.rewrite].join(' ').toLowerCase();
+      if (!haystack.includes(currentSearch)) return false;
+    }
+    return true;
+  });
+  filtered.sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt));
+  document.getElementById('total-count').textContent = filtered.length + ' scripts';
+  renderGrid();
+}
+
+// ── Render ────────────────────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">◈</div><div class="empty-h">No scripts found</div><div class="empty-p">Try a different filter or add scripts from the Ad Library.</div></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map((e,i) => cardHTML(e,i)).join('');
+}
+
+function cardHTML(e, i) {
+  const date = e.savedAt ? new Date(e.savedAt).toLocaleDateString() : '';
+  const hasRewrite = e.rewrite && e.rewrite !== 'Error';
+  const transcript = (e.transcript || e.adCopy || '').trim();
+  const rewrite = (e.rewrite || '').trim();
+
+  return `<div class="card" id="card-${i}">
+    <div class="card-header">
+      <div class="card-brand">${esc(e.advertiserName || 'Unknown brand')}</div>
+      <div class="card-badges">
+        <span class="badge badge-${e.adFormat==='video'?'video':'image'}">${e.adFormat||'video'}</span>
+        <span class="badge badge-date">${date}</span>
+        ${hasRewrite ? '<span class="badge" style="background:rgba(34,197,94,.12);color:#4ade80">rewritten</span>' : ''}
+      </div>
+    </div>
+    <div class="card-body">
+      ${transcript ? `
+      <div class="section-label">
+        Transcript
+        <button class="copy-btn" onclick="copyText(${JSON.stringify(transcript)})">copy</button>
+      </div>
+      <div class="text-box" id="transcript-${i}">${esc(transcript.slice(0,300))}${transcript.length>300?'…':''}</div>
+      ${transcript.length>300?`<span class="expand-btn" onclick="toggleExpand('transcript-${i}',${JSON.stringify(transcript)},this)">▼ Show full transcript</span>`:''}
+      ` : ''}
+      ${e.adCopy && e.adCopy !== transcript ? `
+      <div class="section-label">Ad copy <button class="copy-btn" onclick="copyText(${JSON.stringify(e.adCopy)})">copy</button></div>
+      <div class="text-box">${esc(e.adCopy.slice(0,200))}</div>
+      ` : ''}
+      ${e.visualDescription ? `
+      <div class="section-label">Visual description</div>
+      <div class="text-box" style="color:var(--text3)">${esc(e.visualDescription.slice(0,150))}</div>
+      ` : ''}
+      ${hasRewrite ? `
+      <div class="section-label">
+        Rewrite — ${esc(e.product||'Exxtra')}
+        <button class="copy-btn" onclick="copyText(${JSON.stringify(rewrite)})">copy</button>
+      </div>
+      <div class="text-box rewrite" id="rewrite-${i}">${esc(rewrite.slice(0,300))}${rewrite.length>300?'…':''}</div>
+      ${rewrite.length>300?`<span class="expand-btn" onclick="toggleExpand('rewrite-${i}',${JSON.stringify(rewrite)},this)">▼ Show full rewrite</span>`:''}
+      ` : ''}
+    </div>
+    <div class="card-footer">
+      ${e.adLibraryLink ? `<a class="link-btn" href="${e.adLibraryLink}" target="_blank">↗ View ad</a>` : ''}
+      <div style="flex:1"></div>
+      <button class="btn-sm" onclick="deleteEntry('${e.id}')">Delete</button>
+      <button class="btn-sm btn-sm-red" onclick="openRW(${i})">Rewrite</button>
+    </div>
+  </div>`;
+}
+
+function toggleExpand(id, fullText, btn) {
+  const el = document.getElementById(id);
+  if (el.classList.contains('expanded')) {
+    el.classList.remove('expanded');
+    el.textContent = fullText.slice(0,300) + '…';
+    btn.textContent = '▼ Show full';
+  } else {
+    el.classList.add('expanded');
+    el.textContent = fullText;
+    btn.textContent = '▲ Collapse';
+  }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Rewrite ───────────────────────────────────────────────────────
+function openRW(i) {
+  currentRWEntry = filtered[i];
+  const src = currentRWEntry.transcript || currentRWEntry.adCopy || '';
+  document.getElementById('rw-brand-label').textContent = currentRWEntry.advertiserName || 'Unknown brand';
+  document.getElementById('rw-orig').textContent = src.slice(0, 400) + (src.length > 400 ? '…' : '');
+  document.getElementById('rw-result').textContent = 'Click Generate to create your adapted script.';
+  document.getElementById('rw-overlay').classList.add('show');
+}
+
+function closeRW() { document.getElementById('rw-overlay').classList.remove('show'); }
+
+async function generateRW() {
+  if (!currentRWEntry) return;
+  const btn = document.getElementById('rw-gen-btn');
+  const result = document.getElementById('rw-result');
+  btn.innerHTML = '<span class="spinner"></span>Writing...';
+  btn.disabled = true;
+
+  const PRODUCTS = {
+    'exxtra-oregano': 'EXXTRA Oil of Oregano with Black Seed Oil (500mg, 85% carvacrol, wild Mediterranean harvest)',
+    'exxtra-relief': 'EXXTRA Miracle Relief Cream (16-ingredient topical for neuropathy/nerve pain)',
+  };
+  const ANGLES = {
+    'antibiotic': 'Antibiotic Cycle Breaker — biofilm penetration, gut microbiome restoration',
+    'parasite': 'Parasite Cleanse — 21-day protocol, carvacrol as antiparasitic',
+    'gut': 'Gut Health / SIBO — dysbiosis, bloating, gut lining repair',
+    'immune': 'Immune Defense — natural antimicrobial, respiratory health',
+    'candida': 'Mold / Candida / Brain Fog — antifungal, cognitive clarity',
+    'skin': 'Skin From Inside — acne, eczema, gut-skin axis',
+    'allergy': 'Allergy Season — anti-inflammatory, histamine',
+    'pain': 'Nerve Pain / Neuropathy — topical relief',
+    'wound': 'Wounded Warrior — veteran demographic, chronic pain',
+  };
+
+  const prod = document.getElementById('rw-prod').value;
+  const angle = document.getElementById('rw-angle').value;
+  const src = currentRWEntry.transcript || currentRWEntry.adCopy || '';
+
+  try {
+    const r = await fetch('/api/rewrite', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ originalCopy: src, product: prod, angle }),
+    });
+    const d = await r.json();
+    if (d.rewrite) {
+      result.textContent = d.rewrite;
+      // Auto-save back to vault
+      currentRWEntry.rewrite = d.rewrite;
+      currentRWEntry.product = prod;
+      await fetch('/api/vault/update', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ id: currentRWEntry.id, rewrite: d.rewrite, product: prod }),
+      });
+      await load();
+    } else {
+      result.textContent = d.error || 'Failed.';
+    }
+  } catch(e) { result.textContent = 'Error: ' + e.message; }
+  btn.innerHTML = 'Generate';
+  btn.disabled = false;
+}
+
+function copyResult() {
+  const t = document.getElementById('rw-result').textContent;
+  navigator.clipboard.writeText(t).then(() => showToast('Copied'));
+}
+
+function copyText(t) {
+  navigator.clipboard.writeText(t).then(() => showToast('Copied'));
+}
+
+// ── Delete ────────────────────────────────────────────────────────
+async function deleteEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  await fetch('/api/vault/' + id, { method: 'DELETE' });
+  await load();
+  showToast('Deleted');
+}
+
+// ── Export ────────────────────────────────────────────────────────
+function exportAll() {
+  const rows = [['Brand','Format','Transcript','Ad Copy','Rewrite','Product','Saved At','Link']];
+  filtered.forEach(e => rows.push([
+    `"${(e.advertiserName||'').replace(/"/g,'""')}"`,
+    e.adFormat||'',
+    `"${(e.transcript||'').replace(/"/g,'""')}"`,
+    `"${(e.adCopy||'').replace(/"/g,'""')}"`,
+    `"${(e.rewrite||'').replace(/"/g,'""')}"`,
+    e.product||'',
+    e.savedAt||'',
+    e.adLibraryLink||'',
+  ]));
+  const blob = new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='adswipe-batch.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported');
+}
+
+function openBatchRewrite() { showToast('Select individual ads to rewrite them'); }
+
+// ── Toast ─────────────────────────────────────────────────────────
+let toastT;
+function showToast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>document.getElementById('toast').classList.remove('show'), 2500);
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeRW(); });
+load();
+</script>
+</body>
+</html>
