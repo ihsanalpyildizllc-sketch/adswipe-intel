@@ -195,7 +195,7 @@ app.post("/api/scrape-brand", async (req, res) => {
           if (videos.length) type = "VIDEO";
           else if (images.length > 1) type = "CAROUSEL";
 
-          if (copy && copy.length > 30) {
+          if (copy && copy.length > 30 && !copy.includes("Search by keyword") && !copy.includes("These results incl") && !copy.includes("Subscribe to email") && pageName !== "Branded Content" && pageName !== "Meta Ad Library") {
             results.push({
               id: `ad_${idx}_${Date.now()}`,
               pageName: pageName.slice(0, 100),
